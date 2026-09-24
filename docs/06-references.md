@@ -7,7 +7,7 @@ deliberately out of scope.
 
 ## This repository
 
-### [`dfreriks-snow/sap-bdc-sales-360`](https://github.com/dfreriks-snow/sap-bdc-sales-360)
+### [`sfc-gh-dfreriks/sap-bdc-sales-360`](https://github.com/sfc-gh-dfreriks/sap-bdc-sales-360)
 
 | Path | Contents |
 |---|---|
@@ -93,7 +93,7 @@ search tool).
 
 ## Companion asset — Finance 360
 
-### [`dfreriks-snow/sap-bdc-finance-360`](https://github.com/dfreriks-snow/sap-bdc-finance-360)
+### [`sfc-gh-dfreriks/sap-bdc-finance-360`](https://github.com/sfc-gh-dfreriks/sap-bdc-finance-360)
 
 The sibling build over SAP finance data products. It shares the layer naming, the
 toolchain and the documentation structure, and differs in three ways that this

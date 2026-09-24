@@ -23,7 +23,7 @@ if not (SHARED / "build.py").exists():
         f"Shared video builder not found at {SHARED / 'build.py'}.\n"
         "It is owned by the sap-bdc-finance-360 repo. Clone it alongside this "
         "one:\n"
-        "  git clone https://github.com/dfreriks-snow/sap-bdc-finance-360 "
+        "  git clone https://github.com/sfc-gh-dfreriks/sap-bdc-finance-360 "
         f"{SHARED.parents[1]}"
     )
 
