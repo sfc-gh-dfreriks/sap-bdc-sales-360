@@ -8,6 +8,7 @@ import Products from '@/pages/Products';
 import Leaderboard from '@/pages/Leaderboard';
 import Forecast from '@/pages/Forecast';
 import Chat from '@/pages/Chat';
+import Lineage from '@/pages/Lineage';
 
 const PAGE_COMPONENTS: Record<string, React.FC> = {
   dashboard: Dashboard,
@@ -16,6 +17,7 @@ const PAGE_COMPONENTS: Record<string, React.FC> = {
   products: Products,
   leaderboard: Leaderboard,
   forecast: Forecast,
+  lineage: Lineage,
   chat: Chat,
 };
 

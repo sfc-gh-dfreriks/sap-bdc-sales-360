@@ -7,6 +7,7 @@ import {
   Trophy,
   TrendingUp,
   MessageSquare,
+  GitBranch,
   Check,
   Search,
   X,
@@ -21,6 +22,7 @@ export type PageId =
   | 'products'
   | 'leaderboard'
   | 'forecast'
+  | 'lineage'
   | 'chat';
 
 export interface NavItem {
@@ -37,6 +39,7 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'products', label: 'Products', icon: Package },
   { id: 'leaderboard', label: 'Rep Leaderboard', icon: Trophy },
   { id: 'forecast', label: 'Sales Forecast', icon: TrendingUp },
+  { id: 'lineage', label: 'BDC Sources & Lineage', icon: GitBranch },
   { id: 'chat', label: 'Ask the Agent', icon: MessageSquare },
 ];
 

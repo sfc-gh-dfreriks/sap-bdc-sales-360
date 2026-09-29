@@ -52,6 +52,10 @@ export function fetchProducts() {
   return get<any>('/products');
 }
 
+export function fetchLineage() {
+  return get<any>('/lineage');
+}
+
 export function fetchLeaderboard() {
   return get<any>('/leaderboard');
 }
