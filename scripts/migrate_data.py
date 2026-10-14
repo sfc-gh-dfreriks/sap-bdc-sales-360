@@ -81,9 +81,17 @@ def remote_bundle(source, target, wh):
         ncol = len(cols)
         ch = max(2000, min(8000, 500000 // ncol))   # adaptive batch: fewer round-trips for narrow tables
         ph = "(" + ",".join(["?"] * ncol) + ")"; collist = ", ".join('"'+c+'"' for c in cols)
-        ins = f'INSERT INTO {PKG}.SHARED_DATA.{name} ({collist}) VALUES {ph}'
-        for i in range(0, len(rows), ch):
-            tc.executemany(ins, rows[i:i+ch])
+        semi = [ty.split("(")[0].upper() in ("VARIANT", "OBJECT", "ARRAY") for _, ty in coldefs]
+        if any(semi):
+            # Semi-structured values arrive as JSON text; a bound string cannot fill a VARIANT
+            # column (002023), so insert through PARSE_JSON one row at a time.
+            sel = ", ".join("PARSE_JSON(?)" if v else "?" for v in semi)
+            for r in rows:
+                tc.execute(f'INSERT INTO {PKG}.SHARED_DATA.{name} ({collist}) SELECT {sel}', list(r))
+        else:
+            ins = f'INSERT INTO {PKG}.SHARED_DATA.{name} ({collist}) VALUES {ph}'
+            for i in range(0, len(rows), ch):
+                tc.executemany(ins, rows[i:i+ch])
         tc.execute(f"GRANT SELECT ON TABLE {PKG}.SHARED_DATA.{name} TO SHARE IN APPLICATION PACKAGE {PKG}")
         tc.execute(f"SELECT COUNT(*) FROM {PKG}.SHARED_DATA.{name}")
         print(f"  {target}/{name}: {tc.fetchone()[0]} rows")
