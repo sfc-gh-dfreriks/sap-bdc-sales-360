@@ -224,8 +224,14 @@ router.get("/api/dashboard", async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 // GET /api/funnel
 // ---------------------------------------------------------------------------
-router.get("/api/funnel", async (_req: Request, res: Response) => {
+router.get("/api/funnel", async (req: Request, res: Response) => {
   try {
+    const { include, exclude } = parseFilter(req);
+    const f = customerWhere(include, exclude, "SPLIT_PART(NAME, ' - ', 1)");
+    // Demo data is not refreshed: every age is measured from the last update in the data (as_of), not today.
+    // Update dates only span the final ~2 weeks, so "stale" means 10+ days without an update on a deal
+    // that has been open 180+ days, rather than the usual 30-day rule.
+    const STALE = "IS_CLOSED='False' AND DATEDIFF('day', LAST_MODIFIED_DATE::DATE, ref.as_of) >= 10 AND DATEDIFF('day', CREATED_DATE::DATE, ref.as_of) >= 180";
     const queries: Record<string, string> = {
       kpis: `
         WITH ref AS (
@@ -238,10 +244,12 @@ router.get("/api/funnel", async (_req: Request, res: Response) => {
                SUM(CASE WHEN IS_CLOSED='True' AND IS_WON='False' THEN AMOUNT ELSE 0 END) AS lost_value,
                AVG(AMOUNT) AS avg_deal_size,
                AVG(CASE WHEN IS_CLOSED='False' THEN DATEDIFF('day', CREATED_DATE::DATE, ref.as_of) END) AS avg_days_open,
-               COUNT(CASE WHEN IS_CLOSED='False' AND DATEDIFF('day', LAST_MODIFIED_DATE::DATE, ref.as_of) > 30 THEN 1 END) AS stale_count,
+               COUNT(CASE WHEN ${STALE} THEN 1 END) AS stale_count,
+               SUM(CASE WHEN ${STALE} THEN AMOUNT ELSE 0 END) AS stale_amount,
                MAX(CASE WHEN IS_CLOSED='False' THEN DATEDIFF('day', CREATED_DATE::DATE, ref.as_of) END) AS oldest_days,
                MAX(ref.as_of) AS as_of_date
         FROM APP_DATA.CRM_OPPORTUNITY_OPPORTUNITY, ref
+        WHERE 1=1 ${f}
       `,
       stages: `
         SELECT STAGE_NAME AS stage,
@@ -249,6 +257,7 @@ router.get("/api/funnel", async (_req: Request, res: Response) => {
                SUM(AMOUNT) AS sum_amount,
                AVG(PROBABILITY) AS avg_probability
         FROM APP_DATA.CRM_OPPORTUNITY_OPPORTUNITY
+        WHERE 1=1 ${f}
         GROUP BY STAGE_NAME
         ORDER BY sum_amount DESC
       `,
@@ -263,6 +272,7 @@ router.get("/api/funnel", async (_req: Request, res: Response) => {
                COUNT(*) AS value,
                SUM(AMOUNT) AS amount
         FROM APP_DATA.CRM_OPPORTUNITY_OPPORTUNITY
+        WHERE 1=1 ${f}
         GROUP BY lead_source, type, outcome
       `,
       win_loss_by_source: `
@@ -270,7 +280,7 @@ router.get("/api/funnel", async (_req: Request, res: Response) => {
                SUM(CASE WHEN IS_WON='True' THEN AMOUNT ELSE 0 END) AS won_amount,
                SUM(CASE WHEN IS_CLOSED='True' AND IS_WON='False' THEN AMOUNT ELSE 0 END) AS lost_amount
         FROM APP_DATA.CRM_OPPORTUNITY_OPPORTUNITY
-        WHERE IS_CLOSED = 'True'
+        WHERE IS_CLOSED = 'True' ${f}
         GROUP BY LEAD_SOURCE
         ORDER BY won_amount DESC
       `,
@@ -286,7 +296,7 @@ router.get("/api/funnel", async (_req: Request, res: Response) => {
                DATEDIFF('day', CREATED_DATE::DATE, ref.as_of) AS days_open,
                DATEDIFF('day', LAST_MODIFIED_DATE::DATE, ref.as_of) AS days_since_update
         FROM APP_DATA.CRM_OPPORTUNITY_OPPORTUNITY, ref
-        WHERE IS_CLOSED = 'False'
+        WHERE IS_CLOSED = 'False' ${f}
         ORDER BY days_open DESC
       `,
       stale_deals: `
@@ -303,9 +313,8 @@ router.get("/api/funnel", async (_req: Request, res: Response) => {
                DATEDIFF('day', CREATED_DATE::DATE, ref.as_of) AS days_open,
                DATEDIFF('day', LAST_MODIFIED_DATE::DATE, ref.as_of) AS days_since_update
         FROM APP_DATA.CRM_OPPORTUNITY_OPPORTUNITY, ref
-        WHERE IS_CLOSED = 'False'
-          AND DATEDIFF('day', LAST_MODIFIED_DATE::DATE, ref.as_of) > 30
-        ORDER BY days_since_update DESC
+        WHERE ${STALE} ${f}
+        ORDER BY days_since_update DESC, amount DESC
         LIMIT 50
       `,
     };
@@ -867,7 +876,6 @@ router.post("/api/agent", async (req: Request, res: Response) => {
     }
   }
 });
-
 // ---------------------------------------------------------------------------
 // GET /api/lineage — SAP BDC sources and medallion lineage for this app
 // ---------------------------------------------------------------------------

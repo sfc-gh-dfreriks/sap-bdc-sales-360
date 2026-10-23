@@ -11,11 +11,13 @@ import {
   Check,
   Search,
   X,
+  Sparkles,
 } from 'lucide-react';
 import { useFilters } from '@/hooks/useFilters';
 import { cn } from '@/lib/utils';
 
 export type PageId =
+  | 'ask'
   | 'dashboard'
   | 'funnel'
   | 'health'
@@ -33,6 +35,7 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: NavItem[] = [
+  { id: 'ask', label: 'Ask Cortex', icon: Sparkles },
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, hasFilters: true },
   { id: 'funnel', label: 'Sales Funnel', icon: Filter, hasFilters: true },
   { id: 'health', label: 'Customer Health', icon: HeartPulse, hasFilters: true },

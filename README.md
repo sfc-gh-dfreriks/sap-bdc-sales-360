@@ -28,10 +28,12 @@ sap-bdc-sales-360/
 - **Native App:** `build_and_push.sh` → `migrate_data.py` → `deploy_native_app.py` → `create_org_listing.py`. Runbook: [`docs/INSTALL.md`](docs/INSTALL.md).
 
 ## The app
-A React dashboard: **Dashboard, Funnel, Customer Health, Products, Leaderboard,
+A React dashboard: **Ask Cortex, Dashboard, Funnel, Customer Health, Products, Leaderboard,
 Forecast**, plus a natural-language **Chat** page (Cortex Analyst over the bundled
 `SAP_SALES_360_ANALYTICS` view). In the packaged app the Chat page uses the
 bundled semantic view via `/api/analyst` (the account agent isn't shipped).
+
+**Ask Cortex** is the first sidebar item, and every data page has an "Ask Cortex about <page>" button with two suggested questions. The server gathers live facts for that page from the app's own tables and asks Snowflake Cortex (`SNOWFLAKE.CORTEX.COMPLETE`, default model `claude-sonnet-4-5`, override with `CORTEX_MODEL`) for a markdown analysis; the call runs as a background job polled every 2 s (`POST`/`GET /api/ask-cortex`). In the Native App it reads the bundled `APP_DATA` tables and needs the app to hold `SNOWFLAKE.CORTEX_USER`; without it the panel shows a "not available in this installation" message with the grant to run.
 
 ## Live reference deployment
 Region-scoped organization listing (`ORGDATACLOUD$INTERNAL$SALES_360_ORG`), 3 regions:

@@ -61,8 +61,8 @@ export function fetchDashboard(include: string[], exclude: string[]) {
   return liveGet<any>(`/dashboard?${buildParams(include, exclude)}`);
 }
 
-export function fetchFunnel() {
-  return STATIC ? staticGet<any>('funnel') : liveGet<any>('/funnel');
+export function fetchFunnel(include: string[] = [], exclude: string[] = []) {
+  return STATIC ? staticGet<any>('funnel') : liveGet<any>(`/funnel?${buildParams(include, exclude)}`);
 }
 
 export function fetchCustomerHealth(include: string[], exclude: string[]) {
@@ -113,4 +113,47 @@ export async function fetchRunSql(sql: string) {
     throw new Error(err.error || 'Query failed');
   }
   return res.json();
+}
+
+// ── Ask Cortex ──────────────────────────────────────────────────────────────
+// Live: POST starts a background job, then poll until done.
+// Static: answers for each topic's default question are baked at export time;
+// free-text questions are routed to the agent endpoint when one is configured.
+export interface AskCortexRequest {
+  topic: string;
+  args?: Record<string, string>;
+  question?: string;
+}
+
+export function askKey(r: AskCortexRequest): string {
+  const a = Object.entries(r.args ?? {}).sort().map(([k, v]) => `${k}=${v}`).join('&');
+  return a ? `${r.topic}?${a}` : r.topic;
+}
+
+export async function askCortex(r: AskCortexRequest, signal?: AbortSignal): Promise<string> {
+  if (STATIC) {
+    const baked = ((await loadStaticFile('ask_cortex').catch(() => ({}))) ?? {}) as Record<string, string>;
+    if (!r.question && baked[askKey(r)]) return baked[askKey(r)];
+    if (AGENT_BASE && r.question) {
+      const res = await fetch(`${AGENT_BASE}/ask-cortex`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(r), signal,
+      }).catch(() => null);
+      if (res?.ok) return (await res.json()).answer;
+    }
+    return baked[askKey(r)] ??
+      '_Live Cortex analysis is not available in this static build. Run the app against Snowflake to ask your own question._';
+  }
+  const start = await fetch(`${BASE}/ask-cortex`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(r), signal,
+  });
+  if (!start.ok) throw new Error(`Ask Cortex: ${start.status}`);
+  const { id } = await start.json();
+  for (let i = 0; i < 90; i++) {
+    await new Promise((res) => setTimeout(res, 2000));
+    if (signal?.aborted) throw new Error('cancelled');
+    const j = await liveGet<any>(`/ask-cortex/${id}`);
+    if (j.status === 'done') return j.answer;
+    if (j.status === 'error') throw new Error(j.error);
+  }
+  throw new Error('Ask Cortex timed out');
 }

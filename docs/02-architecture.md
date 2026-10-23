@@ -236,12 +236,13 @@ finding is recorded with a severity in
 Client | React |
 Server | Express + TypeScript, `api.ts` holding all SQL |
 Packaging | Snowflake Native App on Snowpark Container Services |
-Pages | 7 |
+Pages | 8 |
 Data layer read | `SALES_360_L2` only |
 Deployed URL | `mrzht4-sfsenorthamerica-dfreriks-aws1-w2.snowflakecomputing.app` |
 
 | # | Page | Principal L2 objects |
 |---|---|---|
+0 | Ask Cortex | facts from the L2 tables of each page, sent to `SNOWFLAKE.CORTEX.COMPLETE` |
 1 | Dashboard | opportunity, sales order, sales rep |
 2 | Sales Funnel | opportunity |
 3 | Customer Health | customer, sales order |
@@ -250,7 +251,7 @@ Deployed URL | `mrzht4-sfsenorthamerica-dfreriks-aws1-w2.snowflakecomputing.app`
 6 | Sales Forecast | forecast vs actual, three ML tables |
 7 | Ask the Agent | Cortex Agent / Analyst stage model |
 
-Pages 1–5 are conventional dashboards over L2. Page 6 is the forecast surface
+Page 0 (Ask Cortex) also appears as an "Ask Cortex about <page>" button on pages 1–6; its queries live in `server/src/routes/askCortex.ts`. Pages 1–5 are conventional dashboards over L2. Page 6 is the forecast surface
 whose horizon caveat is above. Page 7 is the natural-language surface, and it is
 bound to the stage model rather than to the semantic view.
 
