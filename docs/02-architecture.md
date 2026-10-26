@@ -242,18 +242,19 @@ Deployed URL | `mrzht4-sfsenorthamerica-dfreriks-aws1-w2.snowflakecomputing.app`
 
 | # | Page | Principal L2 objects |
 |---|---|---|
-0 | Ask Cortex | facts from the L2 tables of each page, sent to `SNOWFLAKE.CORTEX.COMPLETE` |
-1 | Dashboard | opportunity, sales order, sales rep |
-2 | Sales Funnel | opportunity |
-3 | Customer Health | customer, sales order |
-4 | Products | product, order item |
-5 | Rep Leaderboard | sales rep, opportunity |
-6 | Sales Forecast | forecast vs actual, three ML tables |
-7 | Ask the Agent | Cortex Agent / Analyst stage model |
+1 | Dashboard (landing page) | opportunity, sales order, sales rep |
+2 | Ask Cortex | facts from the L2 tables of each page, sent to `SNOWFLAKE.CORTEX.COMPLETE` |
+3 | Sales Funnel | opportunity |
+4 | Customer Health | customer, sales order |
+5 | Products | product, order item |
+6 | Rep Leaderboard | sales rep, opportunity |
+7 | Sales Forecast | forecast vs actual, three ML tables |
+8 | BDC Sources & Lineage | static lineage of the BDC data products |
 
-Page 0 (Ask Cortex) also appears as an "Ask Cortex about <page>" button on pages 1–6; its queries live in `server/src/routes/askCortex.ts`. Pages 1–5 are conventional dashboards over L2. Page 6 is the forecast surface
-whose horizon caveat is above. Page 7 is the natural-language surface, and it is
-bound to the stage model rather than to the semantic view.
+The app opens on page 1 (Dashboard). Page 2 (Ask Cortex) also appears as an "Ask Cortex about <page>" panel on the data pages; its queries live in `server/src/routes/askCortex.ts`. Pages 1 and 3–6 are conventional dashboards over L2. Page 7 is the forecast surface
+whose horizon caveat is above. The app no longer has a separate Ask the Agent page:
+natural-language questions to `SAP_SALES_360_AGENT` are asked in Snowflake
+Intelligence, where the agent is bound to the stage model rather than to the semantic view.
 
 All SQL lives in the server, so the `FROM`-clause census above is a complete
 inventory of what the application reads.

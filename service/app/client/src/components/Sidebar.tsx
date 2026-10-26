@@ -6,7 +6,6 @@ import {
   Package,
   Trophy,
   TrendingUp,
-  MessageSquare,
   GitBranch,
   Check,
   Search,
@@ -24,8 +23,7 @@ export type PageId =
   | 'products'
   | 'leaderboard'
   | 'forecast'
-  | 'lineage'
-  | 'chat';
+  | 'lineage';
 
 export interface NavItem {
   id: PageId;
@@ -35,15 +33,14 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: NavItem[] = [
-  { id: 'ask', label: 'Ask Cortex', icon: Sparkles },
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, hasFilters: true },
+  { id: 'ask', label: 'Ask Cortex', icon: Sparkles },
   { id: 'funnel', label: 'Sales Funnel', icon: Filter, hasFilters: true },
   { id: 'health', label: 'Customer Health', icon: HeartPulse, hasFilters: true },
   { id: 'products', label: 'Products', icon: Package },
   { id: 'leaderboard', label: 'Rep Leaderboard', icon: Trophy },
   { id: 'forecast', label: 'Sales Forecast', icon: TrendingUp },
   { id: 'lineage', label: 'BDC Sources & Lineage', icon: GitBranch },
-  { id: 'chat', label: 'Ask the Agent', icon: MessageSquare },
 ];
 
 interface SidebarProps {

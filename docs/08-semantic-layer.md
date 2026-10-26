@@ -18,7 +18,7 @@ Facts | 69 | 9 |
 Metrics / measures | 138 metrics | 0 measures |
 Relationships | 44 | — |
 Verified queries | n/a | 0 |
-Read by | direct `SEMANTIC_VIEW(...)` SQL | the Cortex Agent, and the app's Ask the Agent page |
+Read by | direct `SEMANTIC_VIEW(...)` SQL | the Cortex Agent |
 
 **They carry the same model name.** That is the first thing to internalise, because
 it is why the confusion described below is so easy to fall into.
@@ -79,7 +79,6 @@ model.** Every natural-language question in this system is answered from the
 | Symptom | Artefact to edit | Effect of editing the other one |
 |---|---|---|
 Agent answer wrong | **stage YAML** | none |
-Ask the Agent page wrong | **stage YAML** | none |
 Agent cannot find a table | **stage YAML** — add it | none |
 A metric definition is wrong in `SEMANTIC_VIEW(...)` output | **semantic view** | none on the SQL path |
 A join is wrong in `SEMANTIC_VIEW(...)` output | **semantic view** — 44 relationships live there | none |

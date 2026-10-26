@@ -15,7 +15,7 @@
 | 4 | Rep leaderboard and attainment | Sales manager | Leaderboard |
 | 5 | Account health | Account executive / CSM | Health |
 | 6 | Product mix | Product / category manager | Products |
-| 7 | Sales copilot | Any seller | Chat (Cortex Agent) |
+| 7 | Sales copilot | Any seller | Ask Cortex (in app); `SAP_SALES_360_AGENT` in Snowflake Intelligence |
 
 ## 1. Revenue dashboard
 
@@ -82,7 +82,7 @@
 
 - **Persona:** Any seller
 - **Business question:** Ask pipeline and order questions in plain English.
-- **Where in the app:** Chat (Cortex Agent)
+- **Where:** Ask Cortex page in the app; `SAP_SALES_360_AGENT` in Snowflake Intelligence
 - **Data used:** Semantic view SAP_SALES_360_ANALYTICS
 - **Ask the agent:**
   - "Which open opportunities over $100K close this quarter?"

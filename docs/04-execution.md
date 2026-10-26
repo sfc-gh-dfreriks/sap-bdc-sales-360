@@ -129,7 +129,7 @@ Decide which artefact you are editing before you open a file.
 
 | Symptom | Artefact to edit |
 |---|---|
-An answer from the agent or the app's Ask the Agent page is wrong | the **stage model** YAML |
+An answer from the agent is wrong | the **stage model** YAML |
 A `SEMANTIC_VIEW(...)` query returns the wrong metric | the **semantic view** |
 The agent picks the wrong tool | the **agent** — though with one tool there is no wrong pick |
 

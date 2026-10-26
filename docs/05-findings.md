@@ -278,7 +278,7 @@ as far as they can.
 
 | Symptom | Edit |
 |---|---|
-Agent answer wrong; Ask the Agent page wrong | the **stage YAML** |
+Agent answer wrong | the **stage YAML** |
 `SEMANTIC_VIEW(...)` result wrong | the **semantic view** |
 
 Anything a customer is expected to ask the agent must be in the stage model. The

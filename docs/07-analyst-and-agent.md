@@ -11,7 +11,7 @@ customer.
 | Consumer | Reads | Scale of what it reads |
 |---|---|---|
 Direct `SEMANTIC_VIEW(...)` SQL | `SEMANTIC.SAP_SALES_360_ANALYTICS` | 64 tables, 369 dimensions, 138 metrics |
-`SAP_SALES_360_AGENT`, and the app's **Ask the Agent** page | the Analyst **stage model** | 10 tables, 64 dimensions, 0 measures |
+`SAP_SALES_360_AGENT` (Snowflake Intelligence) | the Analyst **stage model** | 10 tables, 64 dimensions, 0 measures |
 
 One data layer, two semantic descriptions of it, and the natural-language path
 goes through the smaller one. Everything else in this part follows from that.
@@ -197,10 +197,11 @@ comparing an eleven-year order book against an eighteen-month CRM extract.
 
 ---
 
-## The Ask the Agent page
+## Asking the agent
 
-Page 7 of the application. It is the natural-language surface, and it inherits
-everything above: 10 tables, 64 dimensions, 0 measures, 0 verified queries, and no
+The app no longer has an Ask the Agent page; its Ask Cortex page (directly under
+Dashboard) covers in-app analysis. Free-form questions go to `SAP_SALES_360_AGENT`
+in Snowflake Intelligence, which inherits everything above: 10 tables, 64 dimensions, 0 measures, 0 verified queries, and no
 forecast table.
 
 Two implications for a demo.
@@ -225,7 +226,7 @@ What is genuinely built and demonstrable:
 - A semantic view with 138 metrics and 44 declared relationships — real modelling
   effort, queryable directly.
 - An agent with a single, well-chosen tool and `auto` orchestration, reachable from
-  the application.
+  Snowflake Intelligence.
 
 What is not finished, and is better said than found:
 

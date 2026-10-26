@@ -11,13 +11,13 @@ no pipelines, full SAP context preserved.
 
 ## 10-minute flow
 1. **Open the app** — no setup; data is already inside (bundled Native App).
-2. **Ask Cortex** — click "Ask Cortex about Dashboard" (or any page) for a Cortex-written analysis of that page's live numbers, with recommended actions.
-3. **Dashboard** — revenue KPIs, top customers, pipeline, sales by country, top reps.
+2. **Dashboard** (the app opens here) — revenue KPIs, top customers, pipeline, sales by country, top reps.
+3. **Ask Cortex** — next in the menu; or click "Ask Cortex about Dashboard" (or any page) for a Cortex-written analysis of that page's live numbers, with recommended actions.
 4. **Funnel** — deal stages, sankey, aging and stale deals.
 5. **Customer Health** — contract value, revenue, opportunity count, health status.
 6. **Products & Leaderboard** — top products/groups; rep quota attainment & win %.
 7. **Forecast** — revenue predictions and forecast-vs-actual attainment.
-8. **Chat (Ask the Agent)** — live questions to `SAP_SALES_360_AGENT`:
+8. **Snowflake Intelligence** — live questions to `SAP_SALES_360_AGENT`:
    - "What is total revenue by customer country?"
    - "Show the open pipeline by stage."
    - "Which reps are above quota?"

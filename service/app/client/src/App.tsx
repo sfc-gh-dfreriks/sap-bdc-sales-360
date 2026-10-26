@@ -7,7 +7,6 @@ import Health from '@/pages/Health';
 import Products from '@/pages/Products';
 import Leaderboard from '@/pages/Leaderboard';
 import Forecast from '@/pages/Forecast';
-import Chat from '@/pages/Chat';
 import Lineage from '@/pages/Lineage';
 import AskCortexPage from '@/pages/AskCortexPage';
 import AskCortex from '@/components/AskCortex';
@@ -31,7 +30,6 @@ const PAGE_COMPONENTS: Record<string, React.FC> = {
   leaderboard: Leaderboard,
   forecast: Forecast,
   lineage: Lineage,
-  chat: Chat,
 };
 
 function AppShell() {
