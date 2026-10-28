@@ -56,13 +56,13 @@ DATE = date.today().strftime("%d %B %Y")
 WARN_FILL = "FBEEEE"
 
 PAGE_PURPOSE = {
-    "Dashboard": "Pipeline, bookings and quota headline in one view",
+    "Ask Cortex": "Cortex-written analysis of any page's live numbers",
+    "Executive Dashboard": "Pipeline, bookings and quota headline in one view",
     "Sales Funnel": "Open opportunities by stage, count and value, with stage probability",
     "Customer Health": "Account-level buying behaviour and order history",
     "Products": "What sells, by product and product group",
     "Rep Leaderboard": "Per-rep attainment against quota",
     "Sales Forecast": "Forecast against actual by period, plus the ML prediction tables",
-    "Ask the Agent": "Natural-language questions answered by Cortex Analyst",
 }
 
 

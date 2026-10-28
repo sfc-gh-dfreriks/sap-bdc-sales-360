@@ -59,6 +59,6 @@ For distribution the app is packaged as a **self-contained Native App**: the 14
 `SALES_360_L2` tables the UI needs (~1.4M rows) are **bundled** into the
 package's `SHARED_DATA` schema, and an in-app copy of the
 `SAP_SALES_360_ANALYTICS` semantic view is included. The app opens on the
-Dashboard, with Ask Cortex directly beneath it in the menu. The former Chat
+Executive Dashboard, second in the menu directly beneath Ask Cortex. The former Chat
 (Ask the Agent) page was removed because it duplicated Ask Cortex; ask
 `SAP_SALES_360_AGENT` in Snowflake Intelligence for free-form questions.

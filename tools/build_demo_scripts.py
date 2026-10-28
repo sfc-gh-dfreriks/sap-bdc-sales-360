@@ -7,7 +7,7 @@ Six self-contained scripts, one per persona, each a page or two, so a single
 script can be handed to whoever is presenting to that audience.
 
 They are deliberately NOT one template with the role name swapped. Each persona
-opens on a different one of the application's seven pages, drives different
+opens on a different one of the application's pages, drives different
 figures and closes on a different point, because that is the only way the demo
 lands as being about the listener's own job. A sales audience notices a generic
 walkthrough faster than most, having sat through several.
@@ -198,7 +198,7 @@ def cover(doc, F):
          "out in both.")
 
     table(doc, ["#", "Persona", "Opens on", "Closes on", "Mins"], [
-        ["1", "**CRO / VP Sales**", "Dashboard",
+        ["1", "**CRO / VP Sales**", "Executive Dashboard",
          "they win half the deals and well under half the dollars", "6"],
         ["2", "Sales Ops / Deal Desk", "Sales Funnel",
          "the funnel is evidence, and its date integrity is the first thing to fix", "8"],
@@ -208,14 +208,14 @@ def cover(doc, F):
          "product mix is visible at line-item grain without an extract", "7"],
         ["5", "First-line Sales Manager", "Rep Leaderboard",
          "the mechanic is right and the sample is too small to rank anybody", "6"],
-        ["6", "IT / Data Platform Owner", "Ask the Agent",
+        ["6", "IT / Data Platform Owner", "Ask Cortex + Snowflake Intelligence",
          "what still needs building, stated before they find it", "9"],
     ], [0.3, 1.75, 1.45, 2.8, 0.55], size=9)
 
     h2(doc, "Before any demo, whoever the audience is")
     w = F["data_windows"]
     bullet(doc,
-           f"Open the application at **{F['app_url']}** and confirm the Dashboard loads "
+           f"Open the application at **{F['app_url']}** and confirm the Executive Dashboard loads "
            f"before the room does.", size=9.5)
     bullet(doc,
            f"Say once, early, that this is a fixed reference snapshot rather than a live "
@@ -279,7 +279,7 @@ def script_cro(doc, F):
     persona_header(
         doc, 1, "CRO / VP Sales", 6, "CRO, VP Sales, sales leadership",
         "Is my pipeline telling me the truth about what I'm going to close?",
-        "Dashboard")
+        "Executive Dashboard")
 
     who(doc,
         "A CRO is not buying a dashboard. They have several, and they distrust all of them "
@@ -289,7 +289,7 @@ def script_cro(doc, F):
         "before. So do not lead with the total. Lead with the finding that explains their "
         "quarter, and let them discount the total on their own time.")
 
-    open_on(doc, "Dashboard",
+    open_on(doc, "Executive Dashboard",
             "Because it carries the pipeline, bookings and quota headline in one view, which "
             "is the frame they already think in. Opening on the funnel looks like process; "
             "opening here looks like their P&L.")
@@ -354,7 +354,7 @@ def script_cro(doc, F):
         "audience there instead.",
         f"**The Rep Leaderboard. **{F['sales_reps']} reps is too small a sample to rank, and "
         f"a CRO will read names off it and ask about individuals you know nothing about.",
-        "**Ask the Agent. **No verified queries, and a CRO improvises questions. The first "
+        "**Free-form agent questions (Snowflake Intelligence). **No verified queries, and a CRO improvises questions. The first "
         "generated answer they cannot verify undoes the meeting.",
         "**Anything about layers, dynamic tables or the semantic view. **Not their question. "
         "If they ask how it works, answer in one sentence and get back to the gap.",
@@ -450,7 +450,7 @@ def script_ops(doc, F):
         "**The Sales Forecast page. **They will immediately try to reconcile it to the "
         "funnel, and it cannot be reconciled: different table, different grain, annual "
         "totals in the billions against a funnel in the low billions.",
-        "**Ask the Agent, for anything numeric. **Sales ops will check the generated SQL "
+        "**The agent in Snowflake Intelligence, for anything numeric. **Sales ops will check the generated SQL "
         "against the funnel figure, and with no verified queries there is no guarantee they "
         "match.",
         f"**Customer Health and Products. **Both are interesting and neither is their job. "
@@ -545,7 +545,7 @@ def script_cs(doc, F):
         "timing, which is not in this data at all.",
         f"**The Rep Leaderboard. **{F['sales_reps']} reps, quota attainment, nothing to do "
         f"with account health.",
-        "**Ask the Agent, for account-specific questions. **With no verified queries it may "
+        "**The agent in Snowflake Intelligence, for account-specific questions. **With no verified queries it may "
         "answer a named-account question from the wrong table, and a CS lead will take the "
         "answer at face value.",
     ])
@@ -638,7 +638,7 @@ def script_product(doc, F):
         "forecast page invites a demand-planning question this data cannot answer.",
         "**Any claim about demand forecasting by product. **The three ML tables forecast "
         "revenue and attainment, not product demand.",
-        "**Ask the Agent for a product-group aggregation. **With no verified queries, a "
+        "**The agent in Snowflake Intelligence for a product-group aggregation. **With no verified queries, a "
         "group-level roll-up is exactly the kind of query that can silently pick the wrong "
         "join and return a plausible wrong number.",
     ])
@@ -723,7 +723,7 @@ def script_manager(doc, F):
         "**The Sales Forecast page. **Same reason, more acutely: it is the page they will "
         "want to believe.",
         "**Customer Health and Products. **Not what they are measured on.",
-        "**Ask the Agent. **Managers ask about named reps, and with no verified queries a "
+        "**Free-form agent questions (Snowflake Intelligence). **Managers ask about named reps, and with no verified queries a "
         "name-filtered answer on a sample this small can be confidently wrong.",
     ])
 
@@ -735,7 +735,7 @@ def script_platform(doc, F):
         doc, 6, "IT / Data Platform Owner", 9,
         "Data platform, architecture, enterprise IT",
         "What did you actually build, and what is still missing?",
-        "Ask the Agent")
+        "Ask Cortex + Snowflake Intelligence")
 
     who(doc,
         "The platform owner is the only persona who will read the object list. They are not "
@@ -744,8 +744,9 @@ def script_platform(doc, F):
         "because they will find all of them. If you present this build as finished they will "
         "discount everything; if you present the gaps with fixes attached, they will help.")
 
-    open_on(doc, "Ask the Agent",
-            "Because it is the component with the most interesting architecture and the "
+    open_on(doc, "Ask Cortex, then SAP_SALES_360_AGENT in Snowflake Intelligence",
+            "The app has no in-app agent page any more; Ask Cortex is first in its menu and "
+            "the agent is asked in Snowflake Intelligence. Open there because it is the component with the most interesting architecture and the "
             "largest gap, and opening on the gap is what buys credibility with this "
             "audience. Every other persona is steered away from this page; this one starts "
             "here.")

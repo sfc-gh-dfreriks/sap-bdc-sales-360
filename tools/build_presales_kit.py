@@ -57,13 +57,13 @@ FACTS_FILE = pathlib.Path("/tmp/sales_facts.json")
 DATE = date.today().strftime("%d %B %Y")
 
 PAGE_PURPOSE = {
-    "Dashboard": "Pipeline, bookings and attainment headline",
+    "Ask Cortex": "Cortex-written analysis of any page's live numbers",
+    "Executive Dashboard": "Pipeline, bookings and attainment headline",
     "Sales Funnel": "Stage-by-stage conversion and value by stage",
     "Customer Health": "Account-level order history and risk signals",
     "Products": "What sells, by product and product group",
     "Rep Leaderboard": "Quota, attainment and ranking by rep",
     "Sales Forecast": "Forecast against actual, with ML predictions",
-    "Ask the Agent": "Natural-language questions via the Cortex Agent",
 }
 
 
@@ -233,7 +233,7 @@ def build_quick_start(F):
     w, l = d.get(True, {}), d.get(False, {})
     top = F["pipeline_by_stage"][0] if F["pipeline_by_stage"] else {}
     steps = [
-        ["1", "Dashboard", f"Open on the headline — {money(F['open_pipeline'])} pipeline "
+        ["1", "Executive Dashboard", f"Open on the headline — {money(F['open_pipeline'])} pipeline "
          f"across {F['opportunity_count']:,} opportunities. Say: orders from SAP, "
          f"opportunities from CRM, one model."],
         ["2", "Sales Funnel", f"Walk the stages. Largest is {top.get('STAGE_NAME','—')} "
@@ -244,8 +244,8 @@ def build_quick_start(F):
         ["4", "Sales Forecast", "Forecast against actual. Monthly attainment ranges "
          f"{F['attainment_spread']['min']}–{F['attainment_spread']['max']}%, so there "
          f"is real variance to talk about, not a flat line."],
-        ["5", "Ask the Agent", "Ask one question in plain English. Let them pick it. "
-         "This is the moment that lands."],
+        ["5", "Ask Cortex", "Click Ask Cortex about this page, or ask one question of "
+         "SAP_SALES_360_AGENT in Snowflake Intelligence. Let them pick it. This is the moment that lands."],
     ]
     table(doc, ["#", "Page", "What to do and say"], steps, [0.4, 1.7, 4.8], zebra=True)
 

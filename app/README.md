@@ -5,7 +5,7 @@ dashboard (React + Express) on Snowpark Container Services.
 
 ## What's inside
 
-- **Interactive dashboard** — opens on the Dashboard, followed by Ask Cortex, Funnel,
+- **Interactive dashboard** — opens on the Executive Dashboard (second in the menu, under Ask Cortex), followed by Funnel,
   Customer Health, Products, Leaderboard, Forecast, and BDC Sources & Lineage.
 - **Bundled data** — All sales, CRM opportunity, product, and forecast data is
   packaged with the app (no external references or shares). It runs immediately

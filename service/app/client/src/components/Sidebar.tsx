@@ -33,8 +33,8 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: NavItem[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, hasFilters: true },
   { id: 'ask', label: 'Ask Cortex', icon: Sparkles },
+  { id: 'dashboard', label: 'Executive Dashboard', icon: LayoutDashboard, hasFilters: true },
   { id: 'funnel', label: 'Sales Funnel', icon: Filter, hasFilters: true },
   { id: 'health', label: 'Customer Health', icon: HeartPulse, hasFilters: true },
   { id: 'products', label: 'Products', icon: Package },

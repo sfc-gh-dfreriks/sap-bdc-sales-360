@@ -253,8 +253,8 @@ model covers 10: `SALESORDER`, `SALESORDERITEM`, `CUSTOMER`, `PRODUCT`,
 `SAP_SALES_360_AGENT` declares exactly one tool: `cortex_analyst_text_to_sql`.
 That tool binds to the **Analyst stage model**. Therefore:
 
-- Every question asked through the agent, and through the application's **Ask the
-  Agent** page, is answered against the **10-table stage model**.
+- Every question asked through the agent (in Snowflake Intelligence; the app no longer
+  has an Ask the Agent page) is answered against the **10-table stage model**.
 - The 64-table, 369-dimension, 138-metric semantic view answers **nothing** asked
   through the agent. It serves direct `SEMANTIC_VIEW(...)` SQL.
 

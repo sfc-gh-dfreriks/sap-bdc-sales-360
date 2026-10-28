@@ -11,8 +11,8 @@ no pipelines, full SAP context preserved.
 
 ## 10-minute flow
 1. **Open the app** — no setup; data is already inside (bundled Native App).
-2. **Dashboard** (the app opens here) — revenue KPIs, top customers, pipeline, sales by country, top reps.
-3. **Ask Cortex** — next in the menu; or click "Ask Cortex about Dashboard" (or any page) for a Cortex-written analysis of that page's live numbers, with recommended actions.
+2. **Executive Dashboard** (the app opens here) — revenue KPIs, top customers, pipeline, sales by country, top reps.
+3. **Ask Cortex** — first in the menu, just above the Executive Dashboard; or click "Ask Cortex about Executive Dashboard" (or any page) for a Cortex-written analysis of that page's live numbers, with recommended actions.
 4. **Funnel** — deal stages, sankey, aging and stale deals.
 5. **Customer Health** — contract value, revenue, opportunity count, health status.
 6. **Products & Leaderboard** — top products/groups; rep quota attainment & win %.

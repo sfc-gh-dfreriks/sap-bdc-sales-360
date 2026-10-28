@@ -199,8 +199,8 @@ comparing an eleven-year order book against an eighteen-month CRM extract.
 
 ## Asking the agent
 
-The app no longer has an Ask the Agent page; its Ask Cortex page (directly under
-Dashboard) covers in-app analysis. Free-form questions go to `SAP_SALES_360_AGENT`
+The app no longer has an Ask the Agent page; its Ask Cortex page (first in the menu,
+above the Executive Dashboard) covers in-app analysis. Free-form questions go to `SAP_SALES_360_AGENT`
 in Snowflake Intelligence, which inherits everything above: 10 tables, 64 dimensions, 0 measures, 0 verified queries, and no
 forecast table.
 

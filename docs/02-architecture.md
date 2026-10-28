@@ -242,8 +242,8 @@ Deployed URL | `mrzht4-sfsenorthamerica-dfreriks-aws1-w2.snowflakecomputing.app`
 
 | # | Page | Principal L2 objects |
 |---|---|---|
-1 | Dashboard (landing page) | opportunity, sales order, sales rep |
-2 | Ask Cortex | facts from the L2 tables of each page, sent to `SNOWFLAKE.CORTEX.COMPLETE` |
+1 | Ask Cortex | facts from the L2 tables of each page, sent to `SNOWFLAKE.CORTEX.COMPLETE` |
+2 | Executive Dashboard (landing page) | opportunity, sales order, sales rep |
 3 | Sales Funnel | opportunity |
 4 | Customer Health | customer, sales order |
 5 | Products | product, order item |
@@ -251,7 +251,7 @@ Deployed URL | `mrzht4-sfsenorthamerica-dfreriks-aws1-w2.snowflakecomputing.app`
 7 | Sales Forecast | forecast vs actual, three ML tables |
 8 | BDC Sources & Lineage | static lineage of the BDC data products |
 
-The app opens on page 1 (Dashboard). Page 2 (Ask Cortex) also appears as an "Ask Cortex about <page>" panel on the data pages; its queries live in `server/src/routes/askCortex.ts`. Pages 1 and 3–6 are conventional dashboards over L2. Page 7 is the forecast surface
+The app opens on page 2 (Executive Dashboard). Page 1 (Ask Cortex) also appears as an "Ask Cortex about <page>" panel on the data pages; its queries live in `server/src/routes/askCortex.ts`. Pages 2–6 are conventional dashboards over L2. Page 7 is the forecast surface
 whose horizon caveat is above. The app no longer has a separate Ask the Agent page:
 natural-language questions to `SAP_SALES_360_AGENT` are asked in Snowflake
 Intelligence, where the agent is bound to the stage model rather than to the semantic view.

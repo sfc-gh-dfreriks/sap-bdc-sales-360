@@ -281,7 +281,7 @@ def s04_app(prs, f, shots):
          10, False, DK1, 0),
     ], accent=DK2)
 
-    note(s, f"Shown: the Dashboard page. App host {f['app_url']} · "
+    note(s, f"Shown: the Executive Dashboard page. App host {f['app_url']} · "
             f"account {f['account']} · {f['region']}.")
     return s
 

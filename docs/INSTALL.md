@@ -69,7 +69,7 @@ Locator: `ORGDATACLOUD$INTERNAL$SALES_360_ORG`.
 | `app/snowflake.yml` | Snowflake CLI project (`SALES_360_PKG` / `SALES_360_APP`) |
 | `service/app/` | React (Vite) client + Express server + Dockerfile |
 
-The app opens on the Dashboard, with Ask Cortex directly beneath it in the menu.
+The app opens on the Executive Dashboard, second in the menu directly beneath Ask Cortex.
 There is no in-app Chat page; ask `SAP_SALES_360_AGENT` in Snowflake Intelligence.
 
 ## Cortex access
