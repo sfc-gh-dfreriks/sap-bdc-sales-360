@@ -397,7 +397,7 @@ def s08_agent(prs, f, shots):
     s = content(prs, "ASK IT IN PLAIN ENGLISH",
                 "A real Cortex Agent answers over the governed model")
     ag, am, sv = f["cortex_agent"], f["analyst_model"], f["semantic_view"]
-    picture(s, shots["chat"], LEFT, TOP, 5.20, 3.28)
+    picture(s, shots["ask"], LEFT, TOP, 5.20, 3.28)
 
     card(s, 5.85, TOP, 3.65, 1.52, "The agent is real", [
         (f"Agent: {ag['name'].split('.')[-1]}", 11, True, DK1, 3),
