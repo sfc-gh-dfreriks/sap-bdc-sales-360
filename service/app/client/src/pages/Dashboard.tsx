@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import ReactECharts from 'echarts-for-react';
+import ReactECharts from '@/components/Chart';
 import * as echarts from 'echarts';
 import MetricCard from '@/components/MetricCard';
 import ChartCard from '@/components/ChartCard';

@@ -23,9 +23,11 @@ from cryptography.hazmat.backends import default_backend
 PKG = "SALES_360_PKG"
 LISTING = "SALES_360_ORG"
 CONTACT = os.environ.get("LISTING_CONTACT", "you@example.com")
-DESC = ("Self-contained SAP Sales 360 dashboard (React + Express on Snowpark "
-        "Container Services) with bundled data and a Cortex Analyst 'Ask the Agent' "
-        "page powered by the SAP_SALES_360_AGENT semantic model. No data setup required.")
+DESC = ("Self-contained SAP Sales 360 dashboard (React + Express on Snowpark Container Services) "
+        "with bundled data. The Ask Cortex page, and the 'Ask Cortex about <page>' button on "
+        "every dashboard page, send live facts to Snowflake Cortex (claude-sonnet-4-5) for a "
+        "plain-language analysis with recommended actions. Opens on the Executive Dashboard; "
+        "includes the SAP_SALES_360_ANALYTICS semantic view. No data setup required.")
 
 
 def connect(conn_name, **kw):

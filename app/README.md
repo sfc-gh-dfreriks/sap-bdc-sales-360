@@ -5,14 +5,14 @@ dashboard (React + Express) on Snowpark Container Services.
 
 ## What's inside
 
-- **Interactive dashboard** — Dashboard, Funnel, Customer Health, Products,
-  Leaderboard, Forecast, and a natural-language Chat page.
+- **Interactive dashboard** — opens on the Executive Dashboard (second in the menu, under Ask Cortex), followed by Funnel,
+  Customer Health, Products, Leaderboard, Forecast, and BDC Sources & Lineage.
 - **Bundled data** — All sales, CRM opportunity, product, and forecast data is
   packaged with the app (no external references or shares). It runs immediately
   after install.
-- **Ask the Agent** — The Chat page uses Cortex Analyst over the bundled
-  **`SAP_SALES_360_ANALYTICS`** semantic view — the same model behind the
-  account-level **`SAP_SALES_360_AGENT`** Cortex Agent.
+- **Ask Cortex** — An Ask Cortex page plus an "Ask Cortex about <page>" button on each
+  data page. The app gathers live facts from its bundled tables and asks Snowflake Cortex
+  (`claude-sonnet-4-5`) for a plain-language analysis with recommended actions.
 
 ## Data model
 
@@ -29,5 +29,11 @@ product master, and revenue forecast/prediction tables.
 
 ## Cortex access
 
-Grant the app the `SNOWFLAKE.CORTEX_USER` database role so the Chat page can
-call Cortex Analyst.
+Grant the app the `SNOWFLAKE.CORTEX_USER` database role so Ask Cortex can call
+`SNOWFLAKE.CORTEX.COMPLETE`:
+
+```sql
+GRANT DATABASE ROLE SNOWFLAKE.CORTEX_USER TO APPLICATION <app name>;
+```
+
+Without it, Ask Cortex shows a "not available in this installation" message.

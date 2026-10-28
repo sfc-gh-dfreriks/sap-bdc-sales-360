@@ -1,14 +1,19 @@
-import ReactECharts from 'echarts-for-react';
+import ReactECharts from '@/components/Chart';
 import MetricCard from '@/components/MetricCard';
 import ChartCard from '@/components/ChartCard';
 import DataTable from '@/components/DataTable';
 import { useQuery } from '@/hooks/useQuery';
+import { useFilters } from '@/hooks/useFilters';
 import { fetchFunnel } from '@/lib/api';
 import { formatDollar, formatNumber } from '@/lib/utils';
 import { SF_BLUE, SF_DARK, SF_NAVY, SF_ACCENT, PALETTE, STAGE_COLORS } from '@/lib/colors';
 
 export default function Funnel() {
-  const { data, loading } = useQuery(() => fetchFunnel(), []);
+  const { includeCustomers, excludeCustomers } = useFilters();
+  const { data, loading } = useQuery(
+    () => fetchFunnel(includeCustomers, excludeCustomers),
+    [includeCustomers, excludeCustomers]
+  );
 
   if (loading || !data) return <div className="animate-pulse text-gray-400">Loading...</div>;
 
@@ -19,17 +24,22 @@ export default function Funnel() {
   const aging = data.aging ?? [];
   const staleDeals = data.staleDeals ?? [];
 
-  // Funnel chart
+  // Funnel chart: each stage labelled with its value and share of total deal value
+  const funnelTotal = stages.reduce((t: number, s: any) => t + Number(s.sumAmount || 0), 0);
+  const pctOf = (v: number) => (funnelTotal ? `${((v / funnelTotal) * 100).toFixed(1)}%` : '0%');
   const funnelOption = {
-    tooltip: { trigger: 'item', formatter: (p: any) => `${p.name}: ${formatDollar(p.value)}` },
+    tooltip: { trigger: 'item', formatter: (p: any) => `${p.name}<br>${formatDollar(p.value)} · ${pctOf(p.value)} of total<br>${formatNumber(p.data.count)} deals` },
     series: [{
       type: 'funnel',
       left: '10%', right: '10%', top: 20, bottom: 20,
       sort: 'none',
       gap: 2,
-      label: { show: true, position: 'inside', fontSize: 11 },
+      label: {
+        show: true, position: 'inside', fontSize: 11, color: '#fff', fontWeight: 'bold' as const,
+        formatter: (p: any) => `${p.name}\n${formatDollar(p.value)} · ${pctOf(p.value)}`,
+      },
       data: stages.map((s: any) => ({
-        name: s.stage, value: Number(s.sumAmount),
+        name: s.stage, value: Number(s.sumAmount), count: Number(s.count),
         itemStyle: { color: STAGE_COLORS[s.stage] ?? SF_BLUE },
       })),
     }],
@@ -99,16 +109,16 @@ export default function Funnel() {
       formatter: (p: any) => `${p.data[3]}<br>Days: ${p.data[0]}<br>Amount: ${formatDollar(p.data[1])}`,
     },
     legend: { top: 0, type: 'scroll' as const },
-    xAxis: { name: 'Days Open', type: 'value' as const },
+    xAxis: { name: 'Days Open (from last data update)', nameLocation: 'middle' as const, nameGap: 28, type: 'value' as const, min: 0 },
     yAxis: { name: 'Amount ($)', type: 'value' as const, axisLabel: { formatter: (v: number) => formatDollar(v) } },
     series: agingStages.map((stage, i) => ({
       name: stage,
       type: 'scatter',
-      symbolSize: (d: number[]) => Math.min(40, Math.max(8, d[1] / 50000)),
-      itemStyle: { color: PALETTE[i % PALETTE.length] },
+      symbolSize: (d: number[]) => Math.min(30, Math.max(5, d[1] / 80000)),
+      itemStyle: { color: PALETTE[i % PALETTE.length], opacity: 0.6 },
       data: aging
+        // All open deals: the API sorts oldest-first, so a top-N slice showed only the oldest deals.
         .filter((a: any) => a.stage === stage)
-        .slice(0, 100)
         .map((a: any) => [Number(a.daysOpen), Number(a.amount), Number(a.daysSinceUpdate), a.name]),
     })),
   };
@@ -125,7 +135,7 @@ export default function Funnel() {
       <div className="grid grid-cols-4 gap-4">
         <MetricCard title="Avg Deal Size" value={formatDollar(Number(kpis.avgDealSize))} />
         <MetricCard title="Avg Days Open" value={formatNumber(Math.round(Number(kpis.avgDaysOpen)))} />
-        <MetricCard title="Stale Deals" value={formatNumber(Number(kpis.staleCount))} />
+        <MetricCard title="Stale Deals" value={formatNumber(Number(kpis.staleCount))} delta={`${formatDollar(Number(kpis.staleAmount))} at risk`} deltaType="negative" />
         <MetricCard title="Oldest (days)" value={formatNumber(Number(kpis.oldestDays))} />
       </div>
 
@@ -143,13 +153,13 @@ export default function Funnel() {
         <ChartCard title="Win/Loss by Source">
           <ReactECharts option={winLossOption} style={{ height: 350 }} />
         </ChartCard>
-        <ChartCard title="Deal Aging (Bubble)">
+        <ChartCard title={`Deal Aging (Bubble) · days open as of ${kpis.asOfDate ?? 'last data update'}`}>
           <ReactECharts option={scatterOption} style={{ height: 350 }} />
         </ChartCard>
       </div>
 
       {/* Stale deals table */}
-      <ChartCard title="Stale Deals (no update in 30+ days)">
+      <ChartCard title={`Stale Deals · open 180+ days with no update in 10+ days (as of ${kpis.asOfDate ?? 'last data update'})`}>
         <DataTable
           columns={[
             { key: 'customer', label: 'Customer' },
@@ -158,7 +168,8 @@ export default function Funnel() {
             { key: 'amount', label: 'Amount', format: (v) => formatDollar(v) },
             { key: 'rep', label: 'Rep' },
             { key: 'daysOpen', label: 'Days Open' },
-            { key: 'daysSinceUpdate', label: 'Days Stale' },
+            { key: 'probability', label: 'Prob.', format: (v) => `${v}%` },
+            { key: 'daysSinceUpdate', label: 'Days Since Update' },
           ]}
           data={staleDeals}
         />

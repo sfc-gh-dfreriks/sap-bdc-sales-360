@@ -224,8 +224,14 @@ router.get("/api/dashboard", async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 // GET /api/funnel
 // ---------------------------------------------------------------------------
-router.get("/api/funnel", async (_req: Request, res: Response) => {
+router.get("/api/funnel", async (req: Request, res: Response) => {
   try {
+    const { include, exclude } = parseFilter(req);
+    const f = customerWhere(include, exclude, "SPLIT_PART(NAME, ' - ', 1)");
+    // Demo data is not refreshed: every age is measured from the last update in the data (as_of), not today.
+    // Update dates only span the final ~2 weeks, so "stale" means 10+ days without an update on a deal
+    // that has been open 180+ days, rather than the usual 30-day rule.
+    const STALE = "IS_CLOSED='False' AND DATEDIFF('day', LAST_MODIFIED_DATE::DATE, ref.as_of) >= 10 AND DATEDIFF('day', CREATED_DATE::DATE, ref.as_of) >= 180";
     const queries: Record<string, string> = {
       kpis: `
         WITH ref AS (
@@ -238,10 +244,12 @@ router.get("/api/funnel", async (_req: Request, res: Response) => {
                SUM(CASE WHEN IS_CLOSED='True' AND IS_WON='False' THEN AMOUNT ELSE 0 END) AS lost_value,
                AVG(AMOUNT) AS avg_deal_size,
                AVG(CASE WHEN IS_CLOSED='False' THEN DATEDIFF('day', CREATED_DATE::DATE, ref.as_of) END) AS avg_days_open,
-               COUNT(CASE WHEN IS_CLOSED='False' AND DATEDIFF('day', LAST_MODIFIED_DATE::DATE, ref.as_of) > 30 THEN 1 END) AS stale_count,
+               COUNT(CASE WHEN ${STALE} THEN 1 END) AS stale_count,
+               SUM(CASE WHEN ${STALE} THEN AMOUNT ELSE 0 END) AS stale_amount,
                MAX(CASE WHEN IS_CLOSED='False' THEN DATEDIFF('day', CREATED_DATE::DATE, ref.as_of) END) AS oldest_days,
                MAX(ref.as_of) AS as_of_date
         FROM APP_DATA.CRM_OPPORTUNITY_OPPORTUNITY, ref
+        WHERE 1=1 ${f}
       `,
       stages: `
         SELECT STAGE_NAME AS stage,
@@ -249,6 +257,7 @@ router.get("/api/funnel", async (_req: Request, res: Response) => {
                SUM(AMOUNT) AS sum_amount,
                AVG(PROBABILITY) AS avg_probability
         FROM APP_DATA.CRM_OPPORTUNITY_OPPORTUNITY
+        WHERE 1=1 ${f}
         GROUP BY STAGE_NAME
         ORDER BY sum_amount DESC
       `,
@@ -263,6 +272,7 @@ router.get("/api/funnel", async (_req: Request, res: Response) => {
                COUNT(*) AS value,
                SUM(AMOUNT) AS amount
         FROM APP_DATA.CRM_OPPORTUNITY_OPPORTUNITY
+        WHERE 1=1 ${f}
         GROUP BY lead_source, type, outcome
       `,
       win_loss_by_source: `
@@ -270,7 +280,7 @@ router.get("/api/funnel", async (_req: Request, res: Response) => {
                SUM(CASE WHEN IS_WON='True' THEN AMOUNT ELSE 0 END) AS won_amount,
                SUM(CASE WHEN IS_CLOSED='True' AND IS_WON='False' THEN AMOUNT ELSE 0 END) AS lost_amount
         FROM APP_DATA.CRM_OPPORTUNITY_OPPORTUNITY
-        WHERE IS_CLOSED = 'True'
+        WHERE IS_CLOSED = 'True' ${f}
         GROUP BY LEAD_SOURCE
         ORDER BY won_amount DESC
       `,
@@ -286,7 +296,7 @@ router.get("/api/funnel", async (_req: Request, res: Response) => {
                DATEDIFF('day', CREATED_DATE::DATE, ref.as_of) AS days_open,
                DATEDIFF('day', LAST_MODIFIED_DATE::DATE, ref.as_of) AS days_since_update
         FROM APP_DATA.CRM_OPPORTUNITY_OPPORTUNITY, ref
-        WHERE IS_CLOSED = 'False'
+        WHERE IS_CLOSED = 'False' ${f}
         ORDER BY days_open DESC
       `,
       stale_deals: `
@@ -303,9 +313,8 @@ router.get("/api/funnel", async (_req: Request, res: Response) => {
                DATEDIFF('day', CREATED_DATE::DATE, ref.as_of) AS days_open,
                DATEDIFF('day', LAST_MODIFIED_DATE::DATE, ref.as_of) AS days_since_update
         FROM APP_DATA.CRM_OPPORTUNITY_OPPORTUNITY, ref
-        WHERE IS_CLOSED = 'False'
-          AND DATEDIFF('day', LAST_MODIFIED_DATE::DATE, ref.as_of) > 30
-        ORDER BY days_since_update DESC
+        WHERE ${STALE} ${f}
+        ORDER BY days_since_update DESC, amount DESC
         LIMIT 50
       `,
     };
@@ -865,6 +874,73 @@ router.post("/api/agent", async (req: Request, res: Response) => {
     } else {
       res.end();
     }
+  }
+});
+// ---------------------------------------------------------------------------
+// GET /api/lineage — SAP BDC sources and medallion lineage for this app
+// ---------------------------------------------------------------------------
+function lineagePayload(c: Record<string, unknown>) {
+  const n = (v: unknown) => Number(v ?? 0);
+  const p = (sapSystem: string, dataProduct: string, l0Object: string, l1Object: string, rows: unknown, usage: string) =>
+    ({ sapSystem, dataProduct, l0Object, l1Object: `SAP_BDC_L1.${l1Object}`, rows: n(rows), usage });
+  const CRM_EXPORT = "SAP CRM / Sales Cloud export (curated into L1)";
+  const extTables = n(c.product_ext_tables);
+  return {
+    app: "SAP BDC Sales 360",
+    database: "SAP_SALES_360",
+    sourceSystems: ["SAP S/4HANA Sales (SD) — Sales Orders", "SAP S/4HANA Master Data — Product", "SAP CRM / Sales Cloud — Opportunities, Customers & Forecast"],
+    summary:
+      "Sales orders and product master data flow from SAP S/4HANA into Snowflake as SAP BDC zero-copy data products (L0) " +
+      "and are landed as curated L1 tables. CRM opportunities, activities, sales reps, customers and the sales forecast are " +
+      "loaded into L1 from a CRM export. L2 dynamic tables, ML forecast outputs and a semantic view serve this app and the " +
+      "SAP Sales 360 Cortex Agent.",
+    products: [
+      p("S/4HANA Sales (SD)", "Sales Orders — Sales Order", "SAP_BDC_SALESORDERS_DATA_PRODUCT.SALESORDERS.SALESORDER", "SALESORDERS_SALESORDER", c.salesorder, "Order headers, revenue, customers"),
+      p("S/4HANA Sales (SD)", "Sales Orders — Sales Order Item", "SAP_BDC_SALESORDERS_DATA_PRODUCT.SALESORDERS.SALESORDERITEM", "SALESORDERS_SALESORDERITEM", c.salesorderitem, "Line items, product revenue"),
+      p("S/4HANA Master Data", "Product", "SAP_BDC_PRODUCTS_DATA_PRODUCT.PRODUCT.PRODUCT", "PRODUCT_PRODUCT", c.product, "Product master"),
+      p("S/4HANA Master Data", "Product — Description", "SAP_BDC_PRODUCTS_DATA_PRODUCT.PRODUCT.PRODUCTDESCRIPTION", "PRODUCT_PRODUCTDESCRIPTION", c.productdescription, "Product names"),
+      p("S/4HANA Master Data", "Product — Group", "SAP_BDC_PRODUCTS_DATA_PRODUCT.PRODUCT.PRODUCTGROUP", "PRODUCT_PRODUCTGROUP", c.productgroup, "Product groups"),
+      p("S/4HANA Master Data", "Product — Group Text", "SAP_BDC_PRODUCTS_DATA_PRODUCT.PRODUCT.PRODUCTGROUPTEXT", "PRODUCT_PRODUCTGROUPTEXT", c.productgrouptext, "Group names"),
+      { sapSystem: "S/4HANA Master Data", dataProduct: `Product (${extTables} plant/valuation/sales extensions)`,
+        l0Object: "SAP_BDC_PRODUCTS_DATA_PRODUCT.PRODUCT.*", l1Object: "SAP_BDC_L1.PRODUCT_* (extensions)",
+        rows: n(c.product_ext), usage: "Plant, valuation, sales & UoM context" },
+      p("SAP CRM", "Opportunity", CRM_EXPORT, "CRM_OPPORTUNITY_OPPORTUNITY", c.crm_opportunity_opportunity, "Pipeline & funnel"),
+      p("SAP CRM", "Opportunity Activity", CRM_EXPORT, "CRM_OPPORTUNITY_ACTIVITY", c.crm_opportunity_activity, "Engagement & customer health"),
+      p("SAP CRM", "Sales Rep", CRM_EXPORT, "CRM_OPPORTUNITY_SALES_REP", c.crm_opportunity_sales_rep, "Rep leaderboard & quota"),
+      p("SAP CRM", "Customer", CRM_EXPORT, "CUSTOMER_CUSTOMER", c.customer_customer, "Customer master & filters"),
+      p("SAP CRM", "Sales Forecast", CRM_EXPORT, "SALES_FORECAST", c.sales_forecast, "Plan / revised / stretch forecast"),
+    ],
+    curated: [
+      { object: "SALES_360_L2.SALESORDERS_SALESORDERITEM", rows: n(c.l2_salesorderitem) },
+      { object: "SALES_360_L2.SALES_FORECAST_VS_ACTUAL", rows: n(c.l2_forecast_vs_actual) },
+    ],
+    layers: [
+      { name: "SAP Source Systems", tone: "sap", objects: ["SAP S/4HANA Sales (SD)", "SAP S/4HANA Product Master", "SAP CRM / Sales Cloud"] },
+      { name: "L0 — Bronze (BDC Zero-Copy)", tone: "bronze", objects: ["SAP_BDC_SALESORDERS_DATA_PRODUCT", "SAP_BDC_PRODUCTS_DATA_PRODUCT", "CRM export (no BDC share)"] },
+      { name: "L1 — Silver (Curated Tables)", tone: "silver", objects: ["SAP_BDC_L1.SALESORDERS_SALESORDER", "SAP_BDC_L1.SALESORDERS_SALESORDERITEM", `SAP_BDC_L1.PRODUCT_* (${extTables + 4} tables)`, "SAP_BDC_L1.CRM_OPPORTUNITY_*", "SAP_BDC_L1.CUSTOMER_CUSTOMER", "SAP_BDC_L1.SALES_FORECAST"] },
+      { name: "L2 — Gold (Dynamic Tables + ML + Semantic View)", tone: "gold", objects: ["SALES_360_L2.SALESORDERS_* (DT)", "SALES_360_L2.CRM_OPPORTUNITY_* (DT)", "SALES_360_L2.SALES_FORECAST_VS_ACTUAL (DT)", "SALES_360_L2.SALES_REVENUE_PREDICTIONS (ML)", "SALES_360_L2.ATTAINMENT_PREDICTIONS (ML)", "SEMANTIC.SAP_SALES_360_ANALYTICS"] },
+      { name: "AI + Application", tone: "ai", objects: ["SEMANTIC.SAP_SALES_360_AGENT (Cortex Agent)", "SAP BDC Sales 360 (React)"] },
+    ],
+    note:
+      "Sales orders and product master are real SAP BDC zero-copy data products; their row counts match the L1 tables. " +
+      "CRM opportunities, activities, sales reps, customers and the sales forecast have no BDC share in this account — " +
+      "they come from a CRM / Sales Cloud export curated directly into L1. ML predictions are generated in Snowflake.",
+  };
+}
+
+const LINEAGE_COLS =
+  "SALESORDER, SALESORDERITEM, PRODUCT, PRODUCTDESCRIPTION, PRODUCTGROUP, PRODUCTGROUPTEXT, PRODUCT_EXT, PRODUCT_EXT_TABLES, " +
+  "CRM_OPPORTUNITY_OPPORTUNITY, CRM_OPPORTUNITY_ACTIVITY, CRM_OPPORTUNITY_SALES_REP, CUSTOMER_CUSTOMER, SALES_FORECAST, " +
+  "L2_FORECAST_VS_ACTUAL, L2_SALESORDERITEM";
+
+router.get("/api/lineage", async (_req: Request, res: Response) => {
+  try {
+    const row = ((await runQuery(`SELECT ${LINEAGE_COLS} FROM APP_DATA.LINEAGE_COUNTS`))[0] ?? {}) as Record<string, unknown>;
+    const c: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(row)) c[k.toLowerCase()] = v;
+    res.json(lineagePayload(c));
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
   }
 });
 

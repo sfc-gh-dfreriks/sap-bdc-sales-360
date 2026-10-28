@@ -1,10 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import ReactECharts from 'echarts-for-react';
+import ReactECharts from '@/components/Chart';
 import { Send, Trash2, ChevronDown, ChevronRight, Table as TableIcon, BarChart3, Maximize2, X } from 'lucide-react';
 import { fetchRunSql } from '@/lib/api';
 
-const BASE = '/api';
+// Live: same-origin Express API. Static/public build: a serverless agent worker.
+const BASE = import.meta.env.VITE_STATIC === '1'
+  ? (import.meta.env.VITE_AGENT_URL ?? '').replace(/\/$/, '')
+  : '/api';
+const AGENT_UNAVAILABLE =
+  import.meta.env.VITE_STATIC === '1' && !import.meta.env.VITE_AGENT_URL;
 const SF_BLUE = '#29B5E8';
 const PALETTE = ['#29B5E8', '#11567F', '#003860', '#0D8ABF', '#FF6F61', '#59A14F', '#F28E2B', '#8B5CF6'];
 
@@ -266,12 +271,17 @@ export default function Chat() {
         )}
       </div>
       <div className="flex-1 overflow-y-auto px-5 py-4">
+        {AGENT_UNAVAILABLE && (
+          <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-wide text-amber-800">
+            Not available in public repo — the Cortex agent requires a live Snowflake connection
+          </div>
+        )}
         {messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center">
             <p className="mb-6 text-sm text-gray-500">Ask questions about your SAP sales data in natural language.</p>
             <div className="grid max-w-3xl grid-cols-2 gap-3 sm:grid-cols-4">
               {SUGGESTED_QUESTIONS.map((q) => (
-                <button key={q} onClick={() => sendMessage(q)} className="rounded-lg border border-sf-blue/30 bg-sky-50/50 px-3 py-2.5 text-left text-xs text-sf-dark transition-colors hover:border-sf-blue hover:bg-sky-100/50">
+                <button key={q} onClick={() => sendMessage(q)} disabled={AGENT_UNAVAILABLE} className="rounded-lg border border-sf-blue/30 bg-sky-50/50 px-3 py-2.5 text-left text-xs text-sf-dark transition-colors hover:border-sf-blue hover:bg-sky-100/50 disabled:cursor-not-allowed disabled:opacity-50">
                   {q}
                 </button>
               ))}
@@ -337,8 +347,8 @@ export default function Chat() {
       </div>
       <div className="border-t border-gray-200 px-5 py-3">
         <div className="flex gap-3">
-          <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKeyDown} placeholder="Ask a question about your sales data..." disabled={sending} className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-sf-blue focus:ring-1 focus:ring-sf-blue disabled:opacity-50" />
-          <button onClick={() => sendMessage(input)} disabled={!input.trim() || sending} className="flex items-center gap-2 rounded-lg bg-sf-blue px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-sf-dark disabled:opacity-50"><Send className="h-4 w-4" />Send</button>
+          <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKeyDown} placeholder={AGENT_UNAVAILABLE ? 'Agent not available in the public build' : 'Ask a question about your sales data...'} disabled={sending || AGENT_UNAVAILABLE} className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-sf-blue focus:ring-1 focus:ring-sf-blue disabled:opacity-50" />
+          <button onClick={() => sendMessage(input)} disabled={!input.trim() || sending || AGENT_UNAVAILABLE} className="flex items-center gap-2 rounded-lg bg-sf-blue px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-sf-dark disabled:opacity-50"><Send className="h-4 w-4" />Send</button>
         </div>
       </div>
       {/* Fullscreen Modal */}

@@ -32,8 +32,8 @@ shares**. No ETL, no copy, full SAP business context preserved.
  └──────────────────────────────────────────────────────────────────────────┘
               │                                        │
               ▼                                        ▼
-   SAP_SALES_360_AGENT                      Native App Chat page
-   (Snowflake Intelligence, SSE)            (Cortex Analyst in-app)
+   SAP_SALES_360_AGENT                      Native App (Dashboard,
+   (Snowflake Intelligence, SSE)            Ask Cortex, data pages)
                                                         │
                                             React + Express on SPCS
 ```
@@ -53,16 +53,12 @@ shares**. No ETL, no copy, full SAP business context preserved.
 - **Agent** — `SAP_SALES_360_AGENT` Cortex Agent.
   DDL: [`sql/05_cortex_agent.sql`](../sql/05_cortex_agent.sql).
 
-## Native App packaging & the Chat page
+## Native App packaging
 
 For distribution the app is packaged as a **self-contained Native App**: the 14
 `SALES_360_L2` tables the UI needs (~1.4M rows) are **bundled** into the
 package's `SHARED_DATA` schema, and an in-app copy of the
-`SAP_SALES_360_ANALYTICS` semantic view powers the Chat page.
-
-> The standalone app's Chat uses the account-level `SAP_SALES_360_AGENT` via
-> Cortex Agent SSE, with an Analyst fallback. Inside the **packaged Native App**
-> the account agent isn't available, so the container's `/api/agent` returns 501
-> and the client falls back to **`/api/analyst`** over the bundled semantic view
-> — same governed answers, fully self-contained. See
-> [`service/app/server/src/routes/api.ts`](../service/app/server/src/routes/api.ts).
+`SAP_SALES_360_ANALYTICS` semantic view is included. The app opens on the
+Executive Dashboard, second in the menu directly beneath Ask Cortex. The former Chat
+(Ask the Agent) page was removed because it duplicated Ask Cortex; ask
+`SAP_SALES_360_AGENT` in Snowflake Intelligence for free-form questions.

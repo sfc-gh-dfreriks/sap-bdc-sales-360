@@ -6,22 +6,24 @@ import {
   Package,
   Trophy,
   TrendingUp,
-  MessageSquare,
+  GitBranch,
   Check,
   Search,
   X,
+  Sparkles,
 } from 'lucide-react';
 import { useFilters } from '@/hooks/useFilters';
 import { cn } from '@/lib/utils';
 
 export type PageId =
+  | 'ask'
   | 'dashboard'
   | 'funnel'
   | 'health'
   | 'products'
   | 'leaderboard'
   | 'forecast'
-  | 'chat';
+  | 'lineage';
 
 export interface NavItem {
   id: PageId;
@@ -31,13 +33,14 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: NavItem[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, hasFilters: true },
+  { id: 'ask', label: 'Ask Cortex', icon: Sparkles },
+  { id: 'dashboard', label: 'Executive Dashboard', icon: LayoutDashboard, hasFilters: true },
   { id: 'funnel', label: 'Sales Funnel', icon: Filter, hasFilters: true },
   { id: 'health', label: 'Customer Health', icon: HeartPulse, hasFilters: true },
   { id: 'products', label: 'Products', icon: Package },
   { id: 'leaderboard', label: 'Rep Leaderboard', icon: Trophy },
   { id: 'forecast', label: 'Sales Forecast', icon: TrendingUp },
-  { id: 'chat', label: 'Ask the Agent', icon: MessageSquare },
+  { id: 'lineage', label: 'BDC Sources & Lineage', icon: GitBranch },
 ];
 
 interface SidebarProps {
@@ -79,7 +82,8 @@ export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
       ];
 
   const activeNav = NAV_ITEMS.find((n) => n.id === activePage);
-  const showFilters = activeNav?.hasFilters ?? false;
+  // Customer include/exclude filter is disabled in the static/public build.
+  const showFilters = import.meta.env.VITE_STATIC !== '1' && (activeNav?.hasFilters ?? false);
 
   function toggleItem(item: string, selected: string[], setSelected: (v: string[]) => void) {
     if (selected.includes(item)) {
@@ -93,7 +97,7 @@ export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
     <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col bg-gradient-to-b from-sf-navy to-sf-dark text-white">
       {/* Logo */}
       <div className="flex items-center gap-3 border-b border-white/10 px-5 py-4">
-        <img src="/snowflake_logo.svg" alt="Snowflake" className="h-7 w-auto" />
+        <img src={`${import.meta.env.BASE_URL}snowflake_logo.svg`} alt="Snowflake" className="h-7 w-auto" />
         <span className="text-lg font-bold tracking-tight text-white">
           SAP Sales 360
         </span>

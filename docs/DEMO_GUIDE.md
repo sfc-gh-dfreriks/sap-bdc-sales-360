@@ -11,16 +11,17 @@ no pipelines, full SAP context preserved.
 
 ## 10-minute flow
 1. **Open the app** — no setup; data is already inside (bundled Native App).
-2. **Dashboard** — revenue KPIs, top customers, pipeline, sales by country, top reps.
-3. **Funnel** — deal stages, sankey, aging and stale deals.
-4. **Customer Health** — contract value, revenue, opportunity count, health status.
-5. **Products & Leaderboard** — top products/groups; rep quota attainment & win %.
-6. **Forecast** — revenue predictions and forecast-vs-actual attainment.
-7. **Chat (Ask the Agent)** — live questions to `SAP_SALES_360_AGENT`:
+2. **Executive Dashboard** (the app opens here) — revenue KPIs, top customers, pipeline, sales by country, top reps.
+3. **Ask Cortex** — first in the menu, just above the Executive Dashboard; or click "Ask Cortex about Executive Dashboard" (or any page) for a Cortex-written analysis of that page's live numbers, with recommended actions.
+4. **Funnel** — deal stages, sankey, aging and stale deals.
+5. **Customer Health** — contract value, revenue, opportunity count, health status.
+6. **Products & Leaderboard** — top products/groups; rep quota attainment & win %.
+7. **Forecast** — revenue predictions and forecast-vs-actual attainment.
+8. **Snowflake Intelligence** — live questions to `SAP_SALES_360_AGENT`:
    - "What is total revenue by customer country?"
    - "Show the open pipeline by stage."
    - "Which reps are above quota?"
-8. **Recap** — zero-ETL, governed, AI-ready, one-click distribution.
+9. **Recap** — zero-ETL, governed, AI-ready, one-click distribution.
 
 ## Key points to land
 - Data is **already inside Snowflake** — no ETL, no waiting.
